@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  myapp:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080" # Change if your app uses a different port
+    depends_on:
+      - influxdb
+    environment:
+      - INFLUXDB_URL=http://influxdb:8086 # Use this URL to connect to InfluxDB from your Go app
+
+  influxdb:
+    image: influxdb:latest
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb-storage:/var/lib/influxdb
+
+volumes:
+  influxdb-storage:
