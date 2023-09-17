@@ -1,7 +1,26 @@
 # memoria
 Generate a searchable visual history of your activity on your computer.
 
-This project is both a tool for personal use as well as a means to practice a few buzzwordy shenanigans.
+This project is both a tool for personal use as well as a means to practice a few buzzwordy shenanigans. WIP!
+
+## Installation
+The `daemon` service relies on `tesseract`, which is available on multiple platforms. For ubuntu (native or `WSL`), install these packages:
+
+```bash
+sudo apt-get install tesseract-ocr \ 
+                    libtesseract-dev \
+                    libleptonica-dev
+
+```
+
+On the project's root folder, run:
+```bash
+go mod tidy
+```
+
+NOTE: must have `go` version `1.21.0` or greater installed
+
+TODO: fix `Dockerfile` so that the project can be run just via a simple `docker compose up`
 
 ## Daemon
 Takes a screenshot every 10 seconds, runs OCR on it and stores the extracted text and the base64 value of the screenshot on InfluxDB.
