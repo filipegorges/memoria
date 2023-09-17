@@ -1,6 +1,7 @@
-package memoria
+package daemon
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/influxdata/influxdb-client-go/v2/api"
@@ -8,15 +9,15 @@ import (
 )
 
 const (
-	MEASUREMENT = "history"
+	measurement = "history"
 )
 
-func SaveToDB(writer api.WriteAPI, quality, version int, txt, ss string) {
+func saveToDB(writer api.WriteAPI, quality, version int, txt, ss string) {
 	writer.WritePoint(write.NewPoint(
-		MEASUREMENT,
+		measurement,
 		map[string]string{
-			"quality": string(quality),
-			"version": string(version),
+			"quality": fmt.Sprint(quality),
+			"version": fmt.Sprint(version),
 		},
 		map[string]interface{}{
 			"ocr": txt,

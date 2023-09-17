@@ -1,4 +1,4 @@
-package memoria
+package daemon
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func SaveToDisc(img []byte) error {
+func saveToDisc(img []byte) error {
 	fileName := fmt.Sprintf("./assets/screenshot_%s.jpeg", time.Now().Format("20060102_150405"))
 	file, err := os.Create(fileName)
 	if err != nil {

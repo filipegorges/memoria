@@ -1,10 +1,10 @@
-package memoria
+package daemon
 
 import (
 	"github.com/otiai10/gosseract/v2"
 )
 
-func OCR(c *gosseract.Client, ss []byte) (string, error) {
+func ocr(c *gosseract.Client, ss []byte) (string, error) {
 	err := c.SetImageFromBytes(ss)
 	if err != nil {
 		return "", err

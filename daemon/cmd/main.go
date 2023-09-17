@@ -1,50 +1,53 @@
 package main
 
 import (
-	"encoding/base64"
+	"fmt"
 	"log"
 	"time"
 
-	"github.com/filipegorges/memoria"
+	"github.com/filipegorges/memoria/daemon"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
+	"github.com/joho/godotenv"
+	"github.com/kelseyhightower/envconfig"
 	"github.com/otiai10/gosseract/v2"
 )
 
-const (
-	QUALITY                    = 100
-	VERSION                    = 1
-	ITERATION_DELAY_IN_SECONDS = 10
-	DISPLAY                    = 0
-	INFLUX_DB_API_TOKEN        = "PpVRM1LN0rVqjbPOnaxMK9Tr7Jo7FwuXkXaJATRwGvyGYnemrshcH_DNI4DUhklBVSeJOXfspS1_Eoop4U-y5Q=="
-	INFLUXDB_TOKEN             = "tHQFmdtBctPgqA1JCGZi7KxbcwEOsqvOFfySe8Bs-y21JxFXSw8yg88XRAlSDEFgMf9R4pMVWeMGe6UJyn0oVQ=="
-	DB_URL                     = "http://localhost:8086"
-	DB_ORG                     = "memoria"
-	DB_BUCKET                  = "memoria"
-)
+type Env struct {
+	Quality          int    `envconfig:"MEMORIA_QUALITY"`
+	Version          int    `envconfig:"MEMORIA_VERSION"`
+	CaptureFrequency int    `envconfig:"MEMORIA_CAPTURE_FREQUENCY"`
+	Display          int    `envconfig:"MEMORIA_DISPLAY"`
+	InfluxDBAPIToken string `envconfig:"MEMORIA_DB_API_TOKEN"`
+	InfluxDBURL      string `envconfig:"MEMORIA_DB_URL"`
+	InfluxDBOrg      string `envconfig:"MEMORIA_DB_ORG"`
+	InfluxDBBucket   string `envconfig:"MEMORIA_DB_BUCKET"`
+}
 
 func main() {
-	db := influxdb2.NewClient(DB_URL, INFLUX_DB_API_TOKEN)
+	log.Println("Starting Memoria daemon...")
+	log.Println("Reading environment variables...")
+
+	// TODO: we'll want to remove this direct dependency over time
+	if err := godotenv.Load("./daemon/.env/local.env"); err != nil {
+		panic(fmt.Sprintf("Error loading .env file: %v", err))
+	}
+	var env Env
+	if err := envconfig.Process("MEMORIA", &env); err != nil {
+		panic(err)
+	}
+
+	// TODO: remove this log as it'll print the API key in it
+	log.Printf("%#v", env)
+	log.Println("Environment variables read successfully")
+	log.Println("Starting daemon...")
+	db := influxdb2.NewClient(env.InfluxDBURL, env.InfluxDBAPIToken)
 	defer db.Close()
-	writeAPI := db.WriteAPI(DB_ORG, DB_BUCKET)
+	writeAPI := db.WriteAPI(env.InfluxDBOrg, env.InfluxDBBucket)
 
 	tc := gosseract.NewClient()
 	defer tc.Close()
 
-	for {
-		ss, err := memoria.Capture(DISPLAY, QUALITY)
-		if err != nil {
-			panic(err)
-		}
-
-		txt, err := memoria.OCR(tc, ss)
-		if err != nil {
-			panic(err)
-		}
-
-		ssInBase64 := base64.StdEncoding.EncodeToString(ss)
-
-		memoria.SaveToDB(writeAPI, QUALITY, VERSION, txt, ssInBase64)
-		log.Println(txt)
-		time.Sleep(ITERATION_DELAY_IN_SECONDS * time.Second)
-	}
+	memoria := daemon.NewMemoria(env.Display, time.Duration(env.CaptureFrequency)*time.Second, tc, &writeAPI)
+	log.Println("Daemon started successfully")
+	memoria.Record()
 }

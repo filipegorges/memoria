@@ -1,4 +1,4 @@
-package memoria
+package daemon
 
 import (
 	"bytes"
@@ -9,7 +9,7 @@ import (
 	"github.com/kbinani/screenshot"
 )
 
-func Capture(display, quality int) ([]byte, error) {
+func capture(display, quality int) ([]byte, error) {
 	// Get the total number of screens
 	n := screenshot.NumActiveDisplays()
 
