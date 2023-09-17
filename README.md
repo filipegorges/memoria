@@ -1,7 +1,7 @@
 # memoria
 Generate a searchable visual history of your activity on your computer.
 
-This project is both a tool for personal use as well as a means to practice a few buzzwordy shenanigans. WIP!
+This project is both a tool for personal use as well as a means to practice a few buzzwordy shenanigans. **WIP**!
 
 ## Installation
 The `daemon` service relies on `tesseract`, which is available on multiple platforms. For ubuntu (native or `WSL`), install these packages:
