@@ -1,12 +1,6 @@
 package api
 
-import (
-	"github.com/filipegorges/memoria/api/history"
-	"github.com/gin-gonic/gin"
-)
-
-func BuildRoutes(routes *gin.RouterGroup) {
-	v1 := routes.Group("/v1")
-
-	history.Handlers(v1)
+func (a *API) BuildRoutes() {
+	v1 := a.srv.Group("/v1")
+	a.Handlers(v1)
 }
