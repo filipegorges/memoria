@@ -7,15 +7,9 @@ import (
 	"go.uber.org/zap"
 )
 
-func (a *API) BuildMiddlewares() {
-	a.srv.Use(a.zapLogging())
-}
-
 func (a *API) zapLogging() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
-
-		c.Next()
 
 		latency := time.Since(start)
 		reqMethod := c.Request.Method
@@ -28,5 +22,6 @@ func (a *API) zapLogging() gin.HandlerFunc {
 			zap.String("uri", reqUri),
 			zap.Duration("latency", latency),
 		)
+		c.Next()
 	}
 }
